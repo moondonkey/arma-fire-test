@@ -13,29 +13,50 @@ before writing the next mission.
 import argparse
 import json
 import os
+import sys
 import time
 import urllib.request
+
+
+def log(msg):
+    """Print timestamped log message and flush immediately."""
+    timestamp = time.strftime("%H:%M:%S")
+    print(f"[{timestamp}] {msg}")
+    sys.stdout.flush()
 
 
 def poll_server(server_url):
     """Poll for pending fire mission."""
     url = f"{server_url}/api/pending"
+    log(f"Polling: {url}")
     try:
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=5) as resp:
-            data = json.loads(resp.read().decode())
-            return data.get("mission")
+            status = resp.status
+            raw = resp.read().decode()
+            log(f"Vastus (HTTP {status}): {raw[:200]}")
+            data = json.loads(raw)
+            mission = data.get("mission")
+            if mission:
+                log(f"Tulekask saadud: {mission}")
+            else:
+                log("Tulekaske ei ole")
+            return mission
     except Exception as e:
-        print(f"[VIGA] Server poll ebaonnestus: {e}")
+        log(f"VIGA poll: {type(e).__name__}: {e}")
         return None
 
 
 def write_mission_file(filepath, mission):
     """Write fire mission to file for DLL to read."""
     line = f"{mission['x']},{mission['y']},{mission['count']},{mission['radius']},{mission['interval']}"
-    with open(filepath, "w") as f:
-        f.write(line)
-    print(f"[OK] Tulekask kirjutatud: {line}")
+    log(f"Kirjutan faili: {filepath}")
+    try:
+        with open(filepath, "w") as f:
+            f.write(line)
+        log(f"OK kirjutatud: {line}")
+    except Exception as e:
+        log(f"VIGA faili kirjutamine: {type(e).__name__}: {e}")
 
 
 def main():
@@ -45,18 +66,24 @@ def main():
     parser.add_argument("--poll-interval", type=float, default=1.0, help="Poll interval in seconds (default: 1.0)")
     args = parser.parse_args()
 
-    print(f"Bridge kaivitatud")
-    print(f"  Server: {args.server}")
-    print(f"  Fail: {args.out}")
-    print(f"  Poll intervall: {args.poll_interval}s")
-    print(f"Ootan tulekakse...")
+    log("Bridge kaivitatud")
+    log(f"  Server: {args.server}")
+    log(f"  Fail: {args.out}")
+    log(f"  Poll intervall: {args.poll_interval}s")
+    log(f"  Python: {sys.version}")
+    log(f"  OS: {os.name}")
+    log("Ootan tulekakse...")
 
+    poll_nr = 0
     while True:
-        # Only write new file if previous was consumed (deleted by DLL)
+        poll_nr += 1
+
         if os.path.exists(args.out):
+            log(f"#{poll_nr} Fail eksisteerib, ootan kustutamist: {args.out}")
             time.sleep(args.poll_interval)
             continue
 
+        log(f"#{poll_nr} Kusin serverilt...")
         mission = poll_server(args.server)
         if mission:
             write_mission_file(args.out, mission)
