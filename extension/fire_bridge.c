@@ -3,12 +3,12 @@
     Arma 3 callExtension DLL - reads and deletes fire mission files.
 
     Compile (MinGW-w64):
-        gcc -shared -o fire_bridge_x64.dll fire_bridge.c -static
+        gcc -shared -o fire_bridge_x64.dll fire_bridge.c -static -Wl,--kill-at
 
     Place fire_bridge_x64.dll in Arma 3 root directory (next to arma3server_x64.exe).
 
     SQF usage:
-        _content = "fire_bridge" callExtension "C:\path\to\fire_mission.txt";
+        _content = "fire_bridge" callExtension "path\to\fire_mission.txt";
         // Returns file content as string, or "" if no file
         // File is deleted after reading
 */
@@ -17,7 +17,7 @@
 #include <string.h>
 
 __declspec(dllexport) void __stdcall RVExtensionVersion(char *output, int outputSize) {
-    strncpy(output, "fire_bridge v1.0", outputSize - 1);
+    strncpy(output, "fire_bridge v1.1", outputSize - 1);
     output[outputSize - 1] = '\0';
 }
 
@@ -33,7 +33,16 @@ __declspec(dllexport) void __stdcall RVExtension(char *output, int outputSize, c
     fclose(f);
 
     // Delete file after reading
-    remove(function);
+    int result = remove(function);
+    if (result != 0) {
+        // Append delete status to output so SQF can log it
+        char suffix[64];
+        snprintf(suffix, sizeof(suffix), "|DELETE_FAILED:%d", result);
+        size_t total = len + strlen(suffix);
+        if (total < (size_t)outputSize - 1) {
+            strcat(output, suffix);
+        }
+    }
 }
 
 __declspec(dllexport) int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function, const char **argv, int argc) {
