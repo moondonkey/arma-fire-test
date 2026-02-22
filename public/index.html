@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Arma 3 Tulekäsk</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #e94560;
+      text-align: center;
+    }
+    .form {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+    .row .field { flex: 1; }
+    label {
+      font-size: 13px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    input {
+      background: #16213e;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 18px;
+      color: #fff;
+      width: 100%;
+      -webkit-appearance: none;
+    }
+    input:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .fire-btn {
+      margin-top: 12px;
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fire-btn:active {
+      background: #c81e45;
+      transform: scale(0.97);
+    }
+    .fire-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+      min-height: 20px;
+    }
+    .status.ok { color: #4ecca3; }
+    .status.err { color: #e94560; }
+    .log {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 400px;
+      font-size: 12px;
+      color: #666;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .log div { padding: 2px 0; border-bottom: 1px solid #222; }
+  </style>
+</head>
+<body>
+  <h1>ARMA 3 TULEKÄSK</h1>
+  <div class="form">
+    <div class="row">
+      <div class="field">
+        <label>X koordinaat</label>
+        <input type="number" id="x" placeholder="5800" step="1">
+      </div>
+      <div class="field">
+        <label>Y koordinaat</label>
+        <input type="number" id="y" placeholder="4200" step="1">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Plahvatusi</label>
+        <input type="number" id="count" value="6" min="1" max="50">
+      </div>
+      <div class="field">
+        <label>Raadius (m)</label>
+        <input type="number" id="radius" value="50" min="1" max="500">
+      </div>
+    </div>
+    <div class="field">
+      <label>Intervall (sek)</label>
+      <input type="number" id="interval" value="1.5" min="0.1" max="10" step="0.1">
+    </div>
+    <button class="fire-btn" id="fireBtn" onclick="fire()">TULD!</button>
+    <div class="status" id="status"></div>
+  </div>
+  <div class="log" id="log"></div>
+
+  <script>
+    function log(msg, cls) {
+      const el = document.getElementById("log");
+      const d = document.createElement("div");
+      d.textContent = new Date().toLocaleTimeString() + " — " + msg;
+      if (cls) d.style.color = cls === "ok" ? "#4ecca3" : "#e94560";
+      el.prepend(d);
+
+      const st = document.getElementById("status");
+      st.textContent = msg;
+      st.className = "status " + (cls || "");
+    }
+
+    async function fire() {
+      const btn = document.getElementById("fireBtn");
+      const x = document.getElementById("x").value;
+      const y = document.getElementById("y").value;
+
+      if (!x || !y) {
+        log("Sisesta X ja Y koordinaadid!", "err");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "SAADAN...";
+
+      try {
+        const res = await fetch("/api/fire", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            x: Number(x),
+            y: Number(y),
+            count: Number(document.getElementById("count").value),
+            radius: Number(document.getElementById("radius").value),
+            interval: Number(document.getElementById("interval").value),
+          }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          log(`Tulekäsk saadetud: [${x}, ${y}] ${data.mission.count}x r=${data.mission.radius}m`, "ok");
+        } else {
+          log("Viga: " + (data.error || "unknown"), "err");
+        }
+      } catch (e) {
+        log("Ühenduse viga: " + e.message, "err");
+      }
+
+      btn.disabled = false;
+      btn.textContent = "TULD!";
+    }
+  </script>
+</body>
+</html>
