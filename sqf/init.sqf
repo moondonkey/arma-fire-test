@@ -12,7 +12,7 @@
 if (!isServer) exitWith {};
 
 // SET THIS to the full path where bridge.py writes fire_mission.txt
-FIRE_MISSION_PATH = "E:\Programmid\Steam\steamapps\common\Arma 3\fire_mission.txt";
+FIRE_MISSION_PATH = "E:\\Programmid\\Steam\\steamapps\\common\\Arma 3\\fire_mission.txt";
 
 diag_log "[TULEKASK] Fire mission system initialized";
 systemChat "[TULEKASK] Fire mission system initialized";
