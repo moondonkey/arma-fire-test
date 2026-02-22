@@ -62,7 +62,7 @@ def write_mission_file(filepath, mission):
 def main():
     parser = argparse.ArgumentParser(description="Arma 3 Fire Mission Bridge")
     parser.add_argument("--server", default="https://arma-fire-test-production.up.railway.app", help="Test server URL")
-    parser.add_argument("--out", default="C:\\arma3\\fire_mission.txt", help="Output file path (must match init.sqf FIRE_MISSION_PATH)")
+    parser.add_argument("--out", default="E:\\Programmid\\Steam\\steamapps\\common\\Arma 3\\fire_mission.txt", help="Output file path (must match init.sqf FIRE_MISSION_PATH)")
     parser.add_argument("--poll-interval", type=float, default=1.0, help="Poll interval in seconds (default: 1.0)")
     args = parser.parse_args()
 
