@@ -1,29 +1,29 @@
 /*
     init.sqf
     Place this file in your Arma 3 mission root directory.
-    It polls for fire_mission.txt and executes fire missions.
+    Polls for fire_mission.txt via callExtension (no caching).
 
-    Also copy fn_fireMission.sqf to the same mission directory.
+    Requirements:
+    - fire_bridge_x64.dll in Arma 3 root directory
+    - fn_fireMission.sqf in mission directory
+    - Bridge script writing to FIRE_MISSION_PATH below
 */
 
-if (!isServer) exitWith {};  // Only run on the server
+if (!isServer) exitWith {};
+
+// SET THIS to the full path where bridge.py writes fire_mission.txt
+FIRE_MISSION_PATH = "C:\arma3\fire_mission.txt";
 
 diag_log "[TULEKASK] Fire mission system initialized";
+diag_log format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
 
-// Poll loop - runs on server
 [] spawn {
-    private _missionDir = format ["\%1\", missionConfigFile];
-    // We use profileNamespace path for file operations
-    diag_log "[TULEKASK] Polling for fire missions...";
-
     while {true} do {
-        // Try to load the fire mission file
-        private _content = loadFile "fire_mission.txt";
+        private _content = "fire_bridge" callExtension FIRE_MISSION_PATH;
 
         if (_content != "") then {
-            diag_log format ["[TULEKASK] File found: %1", _content];
+            diag_log format ["[TULEKASK] Mission received: %1", _content];
 
-            // Parse CSV: x,y,count,radius,interval
             private _parts = _content splitString ",";
 
             if (count _parts >= 5) then {
@@ -33,19 +33,11 @@ diag_log "[TULEKASK] Fire mission system initialized";
                 private _radius = parseNumber (_parts select 3);
                 private _interval = parseNumber (_parts select 4);
 
-                // Delete the file by overwriting with empty (SQF can't delete files)
-                // The bridge script should handle cleanup, or we just process once
-                diag_log "[TULEKASK] Executing fire mission...";
-
-                // Execute fire mission
+                // execVM runs in parallel - multiple missions can overlap
                 [_x, _y, _count, _radius, _interval] execVM "fn_fireMission.sqf";
             } else {
-                diag_log format ["[TULEKASK] VIGA: Vale formaat, oodati 5 väärtust, sain %1", count _parts];
+                diag_log format ["[TULEKASK] VIGA: Vale formaat: %1", _content];
             };
-
-            // Wait extra time to avoid re-reading same file
-            // Bridge script should only write new file after previous is consumed
-            sleep 5;
         };
 
         sleep 1;
