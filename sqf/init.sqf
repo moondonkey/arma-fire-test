@@ -15,7 +15,9 @@ if (!isServer) exitWith {};
 FIRE_MISSION_PATH = "C:\arma3\fire_mission.txt";
 
 diag_log "[TULEKASK] Fire mission system initialized";
+systemChat "[TULEKASK] Fire mission system initialized";
 diag_log format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
+systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
 
 [] spawn {
     while {true} do {
@@ -23,6 +25,7 @@ diag_log format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
 
         if (_content != "") then {
             diag_log format ["[TULEKASK] Mission received: %1", _content];
+            systemChat format ["[TULEKASK] Mission received: %1", _content];
 
             private _parts = _content splitString ",";
 
@@ -33,10 +36,12 @@ diag_log format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                 private _radius = parseNumber (_parts select 3);
                 private _interval = parseNumber (_parts select 4);
 
-                // execVM runs in parallel - multiple missions can overlap
+                systemChat format ["[TULEKASK] TULD! pos=[%1,%2] arv=%3 raadius=%4", _x, _y, _count, _radius];
+
                 [_x, _y, _count, _radius, _interval] execVM "fn_fireMission.sqf";
             } else {
                 diag_log format ["[TULEKASK] VIGA: Vale formaat: %1", _content];
+                systemChat format ["[TULEKASK] VIGA: Vale formaat: %1", _content];
             };
         };
 

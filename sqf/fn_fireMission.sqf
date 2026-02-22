@@ -15,6 +15,7 @@
 params ["_x", "_y", "_count", "_radius", "_interval"];
 
 diag_log format ["[TULEKASK] Algus: pos=[%1,%2] arv=%3 raadius=%4 intervall=%5", _x, _y, _count, _radius, _interval];
+systemChat format ["[TULEKASK] Algus: pos=[%1,%2] arv=%3", _x, _y, _count];
 
 for "_i" from 1 to _count do {
     // Random position within circle
@@ -31,6 +32,7 @@ for "_i" from 1 to _count do {
     private _shell = "Sh_82mm_AMOS" createVehicle _pos;
 
     diag_log format ["[TULEKASK] Plahvatus %1/%2: pos=%3", _i, _count, _pos];
+    systemChat format ["[TULEKASK] Plahvatus %1/%2", _i, _count];
 
     if (_i < _count) then {
         sleep _interval;
@@ -38,3 +40,4 @@ for "_i" from 1 to _count do {
 };
 
 diag_log "[TULEKASK] Tulekäsk lõpetatud";
+systemChat "[TULEKASK] Tulekäsk lõpetatud";
