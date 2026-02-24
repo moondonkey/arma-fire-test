@@ -52,8 +52,10 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                         private _pz = getTerrainHeightASL [_px, _py];
                         private _pos = [_px, _py, _pz];
 
+                        createVehicle ["Bomb_03_F", _pos, [], 0, "CAN_COLLIDE"];
+
                         diag_log format ["[TULEKASK] Plahvatus %1/%2 pos=%3", _i, _count, _pos];
-                        systemChat format ["[TULEKASK] Plahvatus %1/%2 pos=%3", _i, _count, _pos];
+                        systemChat format ["[TULEKASK] Plahvatus %1/%2", _i, _count];
 
                         if (_i < _count) then {
                             sleep _interval;
