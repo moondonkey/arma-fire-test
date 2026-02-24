@@ -41,8 +41,9 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                 private _count = parseNumber (_parts select 2);
                 private _radius = parseNumber (_parts select 3);
                 private _interval = parseNumber (_parts select 4);
+                private _ammoType = if (count _parts >= 6) then {_parts select 5} else {"Bomb_03_F"};
 
-                systemChat format ["[TULEKASK] TULD! pos=[%1,%2] arv=%3 raadius=%4", _x, _y, _count, _radius];
+                systemChat format ["[TULEKASK] TULD! pos=[%1,%2] arv=%3 raadius=%4 moon=%5", _x, _y, _count, _radius, _ammoType];
 
                 // Log all player positions
                 {
@@ -52,8 +53,8 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                 } forEach allPlayers;
 
                 // spawn ensures scheduled environment where sleep works
-                [_x, _y, _count, _radius, _interval] spawn {
-                    params ["_x", "_y", "_count", "_radius", "_interval"];
+                [_x, _y, _count, _radius, _interval, _ammoType] spawn {
+                    params ["_x", "_y", "_count", "_radius", "_interval", "_ammoType"];
 
                     diag_log format ["[TULEKASK] SPAWN ALGUS pos=[%1,%2] arv=%3", _x, _y, _count];
                     systemChat format ["[TULEKASK] ALGUS pos=[%1,%2] arv=%3", _x, _y, _count];
@@ -66,7 +67,7 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                         private _pz = getTerrainHeightASL [_px, _py];
                         private _pos = [_px, _py, _pz];
 
-                        createVehicle ["Bomb_03_F", _pos, [], 0, "CAN_COLLIDE"];
+                        createVehicle [_ammoType, _pos, [], 0, "CAN_COLLIDE"];
 
                         diag_log format ["[TULEKASK] Plahvatus %1/%2 pos=%3", _i, _count, _pos];
                         systemChat format ["[TULEKASK] Plahvatus %1/%2", _i, _count];

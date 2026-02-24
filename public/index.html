@@ -132,6 +132,20 @@
       <label>Intervall (sek)</label>
       <input type="number" id="interval" value="1.5" min="0.1" max="10" step="0.1">
     </div>
+    <div class="field">
+      <label>Moona tüüp</label>
+      <select id="ammoType" style="background:#16213e;border:1px solid #333;border-radius:8px;padding:12px;font-size:16px;color:#fff;width:100%">
+        <option value="Sh_82mm_AMOS">82mm mürsk (Sh_82mm_AMOS)</option>
+        <option value="Bomb_03_F" selected>Pomm (Bomb_03_F)</option>
+        <option value="R_80mm_HE">80mm rakett (R_80mm_HE)</option>
+        <option value="G_40mm_HE">40mm granaat (G_40mm_HE)</option>
+        <option value="Sh_120mm_HE">120mm mürsk (Sh_120mm_HE)</option>
+        <option value="Sh_155mm_AMOS">155mm mürsk (Sh_155mm_AMOS)</option>
+        <option value="HelicopterExploSmall">Väike plahvatus</option>
+        <option value="HelicopterExploBig">Suur plahvatus</option>
+        <option value="Bo_Mk82">Mk82 pomm (Bo_Mk82)</option>
+      </select>
+    </div>
     <button class="fire-btn" id="fireBtn" onclick="fire()">TULD!</button>
     <div class="status" id="status"></div>
   </div>
@@ -173,6 +187,7 @@
             count: Number(document.getElementById("count").value),
             radius: Number(document.getElementById("radius").value),
             interval: Number(document.getElementById("interval").value),
+            ammoType: document.getElementById("ammoType").value,
           }),
         });
         const data = await res.json();
