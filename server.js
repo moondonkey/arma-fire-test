@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Submit a fire mission from the web UI
 app.post("/api/fire", (req, res) => {
-  const { x, y, count, radius, interval, zOffset } = req.body;
+  const { x, y, type } = req.body;
 
   if (x == null || y == null) {
     return res.status(400).json({ error: "x and y are required" });
@@ -21,12 +21,19 @@ app.post("/api/fire", (req, res) => {
   const mission = {
     x: Number(x),
     y: Number(y),
-    count: Number(count) || 6,
-    radius: Number(radius) || 50,
-    interval: Number(interval) || 1.5,
-    zOffset: Number(zOffset) || 0,
+    type: type || "HE",
     timestamp: Date.now(),
   };
+
+  if (mission.type === "HE") {
+    mission.count = Number(req.body.count) || 6;
+    mission.radius = Number(req.body.radius) || 50;
+    mission.interval = Number(req.body.interval) || 1.5;
+    mission.zOffset = Number(req.body.zOffset) || 0;
+  } else if (mission.type === "ILLUM") {
+    mission.illumHeight = Number(req.body.illumHeight) || 350;
+    mission.illumBrightness = Number(req.body.illumBrightness) || 12;
+  }
 
   pendingMissions.push(mission);
   console.log(`Fire mission queued: ${JSON.stringify(mission)}`);
