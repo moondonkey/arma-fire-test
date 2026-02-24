@@ -50,7 +50,8 @@ def poll_server(server_url):
 def write_mission_file(filepath, mission):
     """Write fire mission to file for DLL to read."""
     ammo = mission.get('ammoType', 'Bomb_03_F')
-    line = f"{mission['x']},{mission['y']},{mission['count']},{mission['radius']},{mission['interval']},{ammo}"
+    z_offset = mission.get('zOffset', 0)
+    line = f"{mission['x']},{mission['y']},{mission['count']},{mission['radius']},{mission['interval']},{ammo},{z_offset}"
     log(f"Kirjutan faili: {filepath}")
     try:
         with open(filepath, "w") as f:

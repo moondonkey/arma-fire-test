@@ -42,8 +42,9 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                 private _radius = parseNumber (_parts select 3);
                 private _interval = parseNumber (_parts select 4);
                 private _ammoType = if (count _parts >= 6) then {_parts select 5} else {"Bomb_03_F"};
+                private _zOffset = if (count _parts >= 7) then {parseNumber (_parts select 6)} else {0};
 
-                systemChat format ["[TULEKASK] TULD! pos=[%1,%2] arv=%3 raadius=%4 moon=%5", _x, _y, _count, _radius, _ammoType];
+                systemChat format ["[TULEKASK] TULD! pos=[%1,%2] arv=%3 r=%4 moon=%5 z=%6", _x, _y, _count, _radius, _ammoType, _zOffset];
 
                 // Log all player positions
                 {
@@ -53,8 +54,8 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                 } forEach allPlayers;
 
                 // spawn ensures scheduled environment where sleep works
-                [_x, _y, _count, _radius, _interval, _ammoType] spawn {
-                    params ["_x", "_y", "_count", "_radius", "_interval", "_ammoType"];
+                [_x, _y, _count, _radius, _interval, _ammoType, _zOffset] spawn {
+                    params ["_x", "_y", "_count", "_radius", "_interval", "_ammoType", "_zOffset"];
 
                     diag_log format ["[TULEKASK] SPAWN ALGUS pos=[%1,%2] arv=%3", _x, _y, _count];
                     systemChat format ["[TULEKASK] ALGUS pos=[%1,%2] arv=%3", _x, _y, _count];
@@ -64,10 +65,20 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
                         private _dist = sqrt (random 1) * _radius;
                         private _px = _x + (_dist * sin _angle);
                         private _py = _y + (_dist * cos _angle);
-                        private _pz = getTerrainHeightASL [_px, _py];
-                        private _pos = [_px, _py, _pz];
+                        private _groundZ = getTerrainHeightASL [_px, _py];
 
-                        createVehicle [_ammoType, _pos, [], 0, "CAN_COLLIDE"];
+                        // Projectiles: spawn 50m above ground, set downward velocity
+                        // Pure explosions: spawn at ground level
+                        private _isProjectile = !(_ammoType in ["HelicopterExploSmall", "HelicopterExploBig", "FuelExplosion", "FuelExplosionBig"]);
+
+                        private _spawnZ = if (_isProjectile) then {_groundZ + 50 + _zOffset} else {_groundZ + _zOffset};
+                        private _pos = [_px, _py, _spawnZ];
+
+                        private _shell = createVehicle [_ammoType, _pos, [], 0, "CAN_COLLIDE"];
+
+                        if (_isProjectile) then {
+                            _shell setVelocity [0, 0, -100];
+                        };
 
                         diag_log format ["[TULEKASK] Plahvatus %1/%2 pos=%3", _i, _count, _pos];
                         systemChat format ["[TULEKASK] Plahvatus %1/%2", _i, _count];

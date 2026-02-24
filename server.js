@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Submit a fire mission from the web UI
 app.post("/api/fire", (req, res) => {
-  const { x, y, count, radius, interval, ammoType } = req.body;
+  const { x, y, count, radius, interval, ammoType, zOffset } = req.body;
 
   if (x == null || y == null) {
     return res.status(400).json({ error: "x and y are required" });
@@ -25,6 +25,7 @@ app.post("/api/fire", (req, res) => {
     radius: Number(radius) || 50,
     interval: Number(interval) || 1.5,
     ammoType: ammoType || "Bomb_03_F",
+    zOffset: Number(zOffset) || 0,
     timestamp: Date.now(),
   };
 
