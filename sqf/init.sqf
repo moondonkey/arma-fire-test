@@ -37,6 +37,13 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
 
                 systemChat format ["[TULEKASK] TULD! pos=[%1,%2] arv=%3 raadius=%4", _x, _y, _count, _radius];
 
+                // Log all player positions
+                {
+                    private _pPos = getPos _x;
+                    systemChat format ["[TULEKASK] Mangija %1 pos=[%2,%3]", name _x, _pPos select 0, _pPos select 1];
+                    diag_log format ["[TULEKASK] Mangija %1 pos=%2", name _x, _pPos];
+                } forEach allPlayers;
+
                 // spawn ensures scheduled environment where sleep works
                 [_x, _y, _count, _radius, _interval] spawn {
                     params ["_x", "_y", "_count", "_radius", "_interval"];
