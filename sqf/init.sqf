@@ -15,6 +15,13 @@ FIRE_MISSION_PATH = "E:\\Programmid\\Steam\\steamapps\\common\\Arma 3\\fire_miss
 
 diag_log "[TULEKASK] Fire mission system initialized";
 systemChat "[TULEKASK] Fire mission system initialized";
+
+// Test which ammo types are available
+{
+    private _exists = isClass (configFile >> "CfgAmmo" >> _x);
+    systemChat format ["[TEST] %1: %2", _x, _exists];
+    diag_log format ["[TEST] %1: %2", _x, _exists];
+} forEach ["Sh_82mm_AMOS", "R_80mm_HE", "G_40mm_HE", "HelicopterExploSmall", "Bomb_03_F", "Sh_120mm_HE", "Sh_155mm_AMOS", "Bo_Mk82"];
 diag_log format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
 systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
 
