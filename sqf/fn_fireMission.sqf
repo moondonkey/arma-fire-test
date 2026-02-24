@@ -1,43 +1,43 @@
 /*
     fn_fireMission.sqf
     Executes a fire mission: creates explosions at random positions within a circle.
-
-    Parameters (passed as array):
-        _x        - X world coordinate (center)
-        _y        - Y world coordinate (center)
-        _count    - Number of explosions
-        _radius   - Dispersion radius in meters
-        _interval - Seconds between explosions
-
-    Called by init.sqf when fire_mission.txt is detected.
 */
 
 params ["_x", "_y", "_count", "_radius", "_interval"];
 
-diag_log format ["[TULEKASK] Algus: pos=[%1,%2] arv=%3 raadius=%4 intervall=%5", _x, _y, _count, _radius, _interval];
-systemChat format ["[TULEKASK] Algus: pos=[%1,%2] arv=%3", _x, _y, _count];
+diag_log format ["[TULEKASK] === ALGUS === pos=[%1,%2] arv=%3 raadius=%4 intervall=%5", _x, _y, _count, _radius, _interval];
+systemChat format ["[TULEKASK] ALGUS pos=[%1,%2] arv=%3", _x, _y, _count];
 
 for "_i" from 1 to _count do {
-    // Random position within circle
+    diag_log format ["[TULEKASK] --- Plahvatus %1/%2 arvutan positsiooni ---", _i, _count];
+
     private _angle = random 360;
-    private _dist = sqrt (random 1) * _radius;  // sqrt for uniform distribution
+    private _dist = sqrt (random 1) * _radius;
     private _px = _x + (_dist * sin _angle);
     private _py = _y + (_dist * cos _angle);
 
-    // Get terrain height at this position
+    diag_log format ["[TULEKASK] Angle=%1 Dist=%2 Pos=[%3,%4]", _angle, _dist, _px, _py];
+
     private _pz = getTerrainHeightASL [_px, _py];
+    diag_log format ["[TULEKASK] TerrainHeight=%1", _pz];
 
-    // Create 82mm shell explosion (closest to 81mm mortar)
     private _pos = [_px, _py, _pz];
-    private _shell = "Sh_82mm_AMOS" createVehicle _pos;
+    diag_log format ["[TULEKASK] Loon plahvatuse: pos=%1", _pos];
 
-    diag_log format ["[TULEKASK] Plahvatus %1/%2: pos=%3", _i, _count, _pos];
-    systemChat format ["[TULEKASK] Plahvatus %1/%2", _i, _count];
+    try {
+        private _shell = createVehicle ["Bo_Mk82", _pos, [], 0, "CAN_COLLIDE"];
+        diag_log format ["[TULEKASK] Plahvatus %1/%2 OK: %3", _i, _count, _shell];
+        systemChat format ["[TULEKASK] Plahvatus %1/%2 OK", _i, _count];
+    } catch {
+        diag_log format ["[TULEKASK] VIGA plahvatus %1/%2: %3", _i, _count, _exception];
+        systemChat format ["[TULEKASK] VIGA %1/%2", _i, _count];
+    };
 
     if (_i < _count) then {
+        diag_log format ["[TULEKASK] Sleep %1 sek", _interval];
         sleep _interval;
     };
 };
 
-diag_log "[TULEKASK] Tulekäsk lõpetatud";
-systemChat "[TULEKASK] Tulekäsk lõpetatud";
+diag_log "[TULEKASK] === LOPETATUD ===";
+systemChat "[TULEKASK] LOPETATUD";
