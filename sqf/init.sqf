@@ -5,7 +5,6 @@
 
     Requirements:
     - fire_bridge_x64.dll in Arma 3 root directory
-    - fn_fireMission.sqf in mission directory
     - Bridge script writing to FIRE_MISSION_PATH below
 */
 
@@ -38,7 +37,32 @@ systemChat format ["[TULEKASK] Watching: %1", FIRE_MISSION_PATH];
 
                 systemChat format ["[TULEKASK] TULD! pos=[%1,%2] arv=%3 raadius=%4", _x, _y, _count, _radius];
 
-                [_x, _y, _count, _radius, _interval] execVM "fn_fireMission.sqf";
+                // spawn ensures scheduled environment where sleep works
+                [_x, _y, _count, _radius, _interval] spawn {
+                    params ["_x", "_y", "_count", "_radius", "_interval"];
+
+                    diag_log format ["[TULEKASK] SPAWN ALGUS pos=[%1,%2] arv=%3", _x, _y, _count];
+                    systemChat format ["[TULEKASK] ALGUS pos=[%1,%2] arv=%3", _x, _y, _count];
+
+                    for "_i" from 1 to _count do {
+                        private _angle = random 360;
+                        private _dist = sqrt (random 1) * _radius;
+                        private _px = _x + (_dist * sin _angle);
+                        private _py = _y + (_dist * cos _angle);
+                        private _pz = getTerrainHeightASL [_px, _py];
+                        private _pos = [_px, _py, _pz];
+
+                        diag_log format ["[TULEKASK] Plahvatus %1/%2 pos=%3", _i, _count, _pos];
+                        systemChat format ["[TULEKASK] Plahvatus %1/%2 pos=%3", _i, _count, _pos];
+
+                        if (_i < _count) then {
+                            sleep _interval;
+                        };
+                    };
+
+                    diag_log "[TULEKASK] LOPETATUD";
+                    systemChat "[TULEKASK] LOPETATUD";
+                };
             } else {
                 diag_log format ["[TULEKASK] VIGA: Vale formaat: %1", _content];
                 systemChat format ["[TULEKASK] VIGA: Vale formaat: %1", _content];
